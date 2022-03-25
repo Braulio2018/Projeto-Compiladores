@@ -120,9 +120,7 @@ public class EditorView extends javax.swing.JFrame {
         );
         editorPanelLayout.setVerticalGroup(
             editorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(editorPanelLayout.createSequentialGroup()
-                .addComponent(editorScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
+            .addComponent(editorScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE)
         );
 
         consolePanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -140,9 +138,7 @@ public class EditorView extends javax.swing.JFrame {
         );
         consolePanelLayout.setVerticalGroup(
             consolePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, consolePanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(consoleScrollPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(consoleScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
