@@ -71,4 +71,8 @@ public enum TokenType {
     public String getSymbol() {
         return symbol;
     }
+
+    public char getSymbolAsChar() {
+       return this.symbol.toCharArray()[0];
+    }
 }
