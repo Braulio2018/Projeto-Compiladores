@@ -3,8 +3,10 @@ package com.gutoveronezi.compiler.views;
 import com.gutoveronezi.compiler.controllers.EditorController;
 import com.gutoveronezi.compiler.utils.ConsoleUtils;
 import javax.swing.JEditorPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import javax.swing.table.DefaultTableModel;
 
 public class EditorView extends javax.swing.JFrame {
 
@@ -39,6 +41,8 @@ public class EditorView extends javax.swing.JFrame {
         menuSeparator1 = new javax.swing.JSeparator();
         runCompiilerButton = new javax.swing.JButton();
         infoPanel = new javax.swing.JPanel();
+        tokenTableScrollPane = new javax.swing.JScrollPane();
+        tokenTable = new javax.swing.JTable();
         editorPanel = new javax.swing.JPanel();
         editorScrollPane = new javax.swing.JScrollPane();
         editorPane = new javax.swing.JEditorPane();
@@ -66,6 +70,11 @@ public class EditorView extends javax.swing.JFrame {
         menuSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
         runCompiilerButton.setToolTipText("Run the compiler");
+        runCompiilerButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runCompiilerButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout menuPanelLayout = new javax.swing.GroupLayout(menuPanel);
         menuPanel.setLayout(menuPanelLayout);
@@ -97,15 +106,40 @@ public class EditorView extends javax.swing.JFrame {
 
         infoPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        tokenTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Type", "Content", "Line", "Start Index", "End Index"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tokenTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tokenTable.getTableHeader().setReorderingAllowed(false);
+        tokenTableScrollPane.setViewportView(tokenTable);
+        if (tokenTable.getColumnModel().getColumnCount() > 0) {
+            tokenTable.getColumnModel().getColumn(2).setResizable(false);
+            tokenTable.getColumnModel().getColumn(3).setResizable(false);
+            tokenTable.getColumnModel().getColumn(4).setResizable(false);
+        }
+
         javax.swing.GroupLayout infoPanelLayout = new javax.swing.GroupLayout(infoPanel);
         infoPanel.setLayout(infoPanelLayout);
         infoPanelLayout.setHorizontalGroup(
             infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 663, Short.MAX_VALUE)
+            .addComponent(tokenTableScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 663, Short.MAX_VALUE)
         );
         infoPanelLayout.setVerticalGroup(
             infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addComponent(tokenTableScrollPane, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         editorPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -138,7 +172,7 @@ public class EditorView extends javax.swing.JFrame {
         );
         consolePanelLayout.setVerticalGroup(
             consolePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(consoleScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+            .addComponent(consoleScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -163,7 +197,7 @@ public class EditorView extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(menuPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(editorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -178,6 +212,10 @@ public class EditorView extends javax.swing.JFrame {
     private void newFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newFileButtonActionPerformed
         controller.newFile();
     }//GEN-LAST:event_newFileButtonActionPerformed
+
+    private void runCompiilerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runCompiilerButtonActionPerformed
+        controller.runCompiler(editorPane.getText());
+    }//GEN-LAST:event_runCompiilerButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeFileButton;
@@ -194,6 +232,8 @@ public class EditorView extends javax.swing.JFrame {
     private javax.swing.JButton openFileButton;
     private javax.swing.JButton runCompiilerButton;
     private javax.swing.JButton saveFileButton;
+    private javax.swing.JTable tokenTable;
+    private javax.swing.JScrollPane tokenTableScrollPane;
     // End of variables declaration//GEN-END:variables
 
     public JTextArea getConsoleTextArea() {
@@ -206,6 +246,10 @@ public class EditorView extends javax.swing.JFrame {
 
     public ConsoleUtils getConsole() {
         return console;
+    }
+
+    public JTable getTokenTable() {
+        return tokenTable;
     }
 
 }

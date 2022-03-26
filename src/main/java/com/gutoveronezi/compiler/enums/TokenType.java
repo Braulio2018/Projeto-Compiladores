@@ -1,5 +1,9 @@
 package com.gutoveronezi.compiler.enums;
 
+import java.util.Set;
+
+import org.apache.commons.compress.utils.Sets;
+
 public enum TokenType {
     BEGIN(6, "begin"),
     CALL(11, "call"),
@@ -23,7 +27,7 @@ public enum TokenType {
     INITIAL_SYMBOL(51),
     INTERGER_NUMBER(26),
     LABEL(2, "label"),
-    LITERAL(48, ""),
+    LITERAL(48),
     OF(10, "of"),
     OPEN_BRACKET(34, "["),
     OPEN_PARENTHESIS(36, "("),
@@ -55,6 +59,9 @@ public enum TokenType {
 
     private final int id;
     private final String symbol;
+    private static final  Set<TokenType> typesThatDoNotNeedWhitespace = Sets.newHashSet(CLOSE_BACKET, CLOSE_PARENTHESIS, COLON, COMMA, DOT, DOUBLE_DOT, OPEN_BRACKET, 
+            OPEN_PARENTHESIS, OPERATOR_ASSIGN, OPERATOR_DIFFERENCE, OPERATOR_DIVIDER, OPERATOR_EQUAL, OPERATOR_GE, OPERATOR_GT, OPERATOR_LE, OPERATOR_LT, OPERATOR_MINUS,
+            OPERATOR_MULTIPLIER, OPERATOR_PLUS, SEMICOLON);
 
     private TokenType(int id, String symbol) {
         this.id = id;
@@ -74,5 +81,25 @@ public enum TokenType {
 
     public char getSymbolAsChar() {
        return this.symbol.toCharArray()[0];
+    }
+
+    public static TokenType getFromSymbol(String symbol) {
+        for (TokenType type : TokenType.values()) {
+            if (type.getSymbol() != null && symbol != null && type.getSymbol().equals(symbol)) {
+                return type;
+            }
+        }
+
+        return null;
+    }
+
+    public static boolean isTypeThatDoesNotNeedWhitespace(String symbol) {
+        TokenType type = getFromSymbol(symbol);
+        return typesThatDoNotNeedWhitespace.contains(type);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s - %s", id, super.toString());
     }
 }

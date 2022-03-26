@@ -7,7 +7,6 @@ import com.gutoveronezi.compiler.models.Token;
 import com.gutoveronezi.compiler.utils.ConsoleUtils;
 import com.gutoveronezi.compiler.utils.TokenUtils;
 import java.util.LinkedList;
-import java.util.List;
 
 public class LexicalAnalyzer {
 
@@ -26,45 +25,80 @@ public class LexicalAnalyzer {
     }
 
     public LinkedList<Token> analyze(String code) {
+        console.logInInfo("Starting lexical analysis...");
         chars = code.toCharArray();
  
-        while (index < chars.length) {
-            char ch = chars[index]; 
+        try {
+            while (index < chars.length) {
+                char ch = chars[index]; 
+    
+                if (TokenUtils.isBreakline(ch)) {
+                    saveToken();
+                    nextLine();
+                    continue;
+                }
+    
+                if (TokenUtils.isWhitespace(ch)) {
+                    saveToken();
+                    continue;
+                }
+    
+                if (TokenUtils.isStartOrEndOfLiteral(ch)) {
+                    saveToken();
+                    readLiteral();
+                    continue;
+                }
+    
+                char nextCh = '\n';
+                if (!isLastIndex()) {
+                    nextCh = chars[index + 1];
+                }
+    
+                if (TokenUtils.isStartOfIntegerValue(ch, nextCh)) {
+                    saveToken();
+                    readInteger();
+                    continue;
+                }
+    
+                if (TokenUtils.isStartOfComment(ch, nextCh)) {
+                    saveToken();
+                    readComment();
+                    continue;
+                }
+    
+                if (TokenType.isTypeThatDoesNotNeedWhitespace(String.format("%s%s", ch, nextCh)) || TokenType.isTypeThatDoesNotNeedWhitespace(String.valueOf(ch))) {
+                    saveToken();
+                    addCharToToken(ch);
+                    if (TokenType.isTypeThatDoesNotNeedWhitespace(String.valueOf(ch)) || TokenType.isTypeThatDoesNotNeedWhitespace(token)) {
+                        saveToken();
+                    }
+ 
+                    if (TokenUtils.isDelimiter(nextCh)) {
+                        nextIndex();
+                    }
+                    continue;
+                } else {
+                    addCharToToken(ch);
+                }
 
-            if (TokenUtils.isStartOrEndOfLiteral(ch)) {
-                readLiteral();
-                continue;
+    
+                nextIndex();
             }
-            
-            if (isIndexOutOfBound()) {
-               // verify what is the right behavior
-            }
-
-            char nextCh = chars[index + 1];
-
-            if (TokenUtils.isStartOfIntegerValue(ch, nextCh)) {
-                readInteger();
-                continue;
-            }
-
-            if (TokenUtils.isStartOfComment(ch, nextCh)) {
-                readComment();
-            }
-            
+    
+            saveToken();
+            return tokens;
+        } finally {
+            console.logInInfo("Finalizing lexical analysis.");
         }
-
-        return tokens;
     }
 
     private void readLiteral() {
-        setStartIndex();
         nextIndex();
 
         while (index < chars.length) {
             char ch = chars[index]; 
 
             if (TokenUtils.isStartOrEndOfLiteral(ch)) {
-                setEndIndex();
                 saveToken(TokenType.LITERAL);
                 nextIndex();
                 return;
@@ -90,13 +124,15 @@ public class LexicalAnalyzer {
         while (index < chars.length) {
             char ch = chars[index]; 
 
-             if (isIndexOutOfBound()) {
+             if (isLastIndex()) {
                return;
             }
 
             char nextCh = chars[index + 1];
 
             if (TokenUtils.isEndOfComment(ch, nextCh)) {
+                nextIndex();
+                nextIndex();
                 return;
             }
 
@@ -105,7 +141,6 @@ public class LexicalAnalyzer {
     }
 
     private void readInteger() {
-        setStartIndex();
         char ch = chars[index];
 
         if (ch == TokenType.OPERATOR_MINUS.getSymbolAsChar()) {
@@ -117,8 +152,6 @@ public class LexicalAnalyzer {
             addCharToToken(chars[index]);
             nextIndex();
         }
-
-        setEndIndex();
 
         int tokenAsInt = Integer.parseInt(token);
 
@@ -146,30 +179,51 @@ public class LexicalAnalyzer {
         lineIndex++;
     }
 
+    private void nextLine() {
+        line++;
+        lineIndex = 0;
+    }
+
     private void validateLiteralToken() {
-        if (token.length() > TokenUtils.MAX_LITERAL_LENGTH) {
+        //validate according language manual
+        if (token != null && token.length() > TokenUtils.MAX_LITERAL_LENGTH) {
             throw new IllegalLiteralException(String.format("String literal at line [%s], starting at index [%s], has more than 255 characteres.", line, startIndex));     
         }
     }
 
+    private void saveToken() {
+        saveToken(TokenType.getFromSymbol(token));
+    }
+
     private void saveToken(TokenType type) {
+        if (token == null) {
+            setStartIndex();
+            return;
+        }
+
+        setEndIndex();
         Token t = new Token();
         t.setStartIndex(startIndex);
-        t.setEndIndex(endIndex);
-        t.setType(type);
+        t.setEndIndex(index >= chars.length - 1 ? endIndex - 1 : endIndex);
+        t.setType(type == null ? TokenType.IDENTIFIER : type);
         t.setLine(line);
         t.setContent(token);
         
         tokens.add(t);
 
-        token = "";
+        token = null;
+        nextIndex();
+        setStartIndex();
     }
 
-    private boolean isIndexOutOfBound() {
+    private boolean isLastIndex() {
         return index >= chars.length - 1;
     }
 
     private void addCharToToken(char ch) {
+        if (token == null) {
+            token = "";
+        }
         token = String.format("%s%s", token, ch);
     }
 }
