@@ -1,8 +1,7 @@
 package com.gutoveronezi.compiler.compiler;
 
 import com.gutoveronezi.compiler.enums.TokenType;
-import com.gutoveronezi.compiler.exceptions.IllegalLiteralException;
-import com.gutoveronezi.compiler.exceptions.InvalidIntegerValueException;
+import com.gutoveronezi.compiler.exceptions.InvalidLiteralException;
 import com.gutoveronezi.compiler.models.Token;
 import com.gutoveronezi.compiler.utils.ConsoleUtils;
 import com.gutoveronezi.compiler.utils.TokenUtils;
@@ -14,7 +13,6 @@ public class LexicalAnalyzer {
     private int line = 1;
     private int lineIndex = 0;
     private int startIndex = 0;
-    private int endIndex = 0;
     private String token = "";
     private int index = 0;
     private char[] chars;
@@ -29,73 +27,58 @@ public class LexicalAnalyzer {
         chars = code.toCharArray();
  
         try {
-            while (index < chars.length) {
+            while (isIndexWithinBound()) {
                 char ch = chars[index]; 
     
                 if (TokenUtils.isBreakline(ch)) {
-                    saveToken();
+                    nextLine();
+                    nextIndex();
+                    continue;
+                }
+
+                if (TokenUtils.isWhitespace(ch)) {
                     nextLine();
                     continue;
                 }
-    
-                if (TokenUtils.isWhitespace(ch)) {
-                    saveToken();
-                    continue;
-                }
-    
+
                 if (TokenUtils.isStartOrEndOfLiteral(ch)) {
-                    saveToken();
                     readLiteral();
                     continue;
                 }
-    
-                char nextCh = '\n';
-                if (!isLastIndex()) {
+                
+                char nextCh = TokenUtils.WHITESPACE;
+                if (!isLastIndexOrAfter()) {
                     nextCh = chars[index + 1];
                 }
-    
+
                 if (TokenUtils.isStartOfIntegerValue(ch, nextCh)) {
-                    saveToken();
                     readInteger();
                     continue;
                 }
-    
+   
                 if (TokenUtils.isStartOfComment(ch, nextCh)) {
-                    saveToken();
                     readComment();
                     continue;
                 }
-    
-                if (TokenType.isTypeThatDoesNotNeedWhitespace(String.format("%s%s", ch, nextCh)) || TokenType.isTypeThatDoesNotNeedWhitespace(String.valueOf(ch))) {
-                    saveToken();
-                    addCharToToken(ch);
-                    if (TokenType.isTypeThatDoesNotNeedWhitespace(String.valueOf(ch)) || TokenType.isTypeThatDoesNotNeedWhitespace(token)) {
-                        saveToken();
-                    }
- 
-                    if (TokenUtils.isDelimiter(nextCh)) {
-                        nextIndex();
-                    }
-                    continue;
-                } else {
-                    addCharToToken(ch);
-                }
 
-    
-                nextIndex();
+                readOtherTokenTypes();
             }
     
-            saveToken();
             return tokens;
         } finally {
             console.logInInfo("Finalizing lexical analysis.");
         }
     }
 
+    private boolean isIndexWithinBound() {
+        return index < chars.length;
+    }
+
     private void readLiteral() {
+        setStartIndex();
         nextIndex();
 
-        while (index < chars.length) {
+        while (isIndexWithinBound()) {
             char ch = chars[index]; 
 
             if (TokenUtils.isStartOrEndOfLiteral(ch)) {
@@ -104,30 +87,46 @@ public class LexicalAnalyzer {
                 return;
             }
 
-            validateLiteralToken();
-
             if (TokenUtils.isBreakline(ch)) {
-                throwUnclosedLiteralException();
+                throw new InvalidLiteralException(String.format("String literal at line [%s], index [%s], contains a forbidden breakline.", line, lineIndex));
             }
 
+            addCharToToken(ch);
+            TokenUtils.validateLiteralToken(token, line, startIndex);
+
+            nextIndex();
+        }
+
+        throw new InvalidLiteralException(String.format("Unclosed string literal at line [%s], index [%s].", line, lineIndex));
+    }
+
+    private void readInteger() {
+        setStartIndex();
+        char ch = chars[index];
+
+        if (ch == TokenType.OPERATOR_MINUS.getSymbolAsChar()) {
             addCharToToken(ch);
             nextIndex();
         }
 
-        throwUnclosedLiteralException();
+        while (isIndexWithinBound() && TokenUtils.isIntegerValue(chars[index])) {
+            addCharToToken(chars[index]);
+            nextIndex();
+        }
+
+        previousIndex();
+
+        TokenUtils.validateIntegerToken(token, line, startIndex);
+        saveToken(TokenType.INTERGER_NUMBER);
+        nextIndex();
     }
 
     private void readComment() {
         nextIndex();
         nextIndex();
 
-        while (index < chars.length) {
+        while (!isLastIndexOrAfter()) {
             char ch = chars[index]; 
-
-             if (isLastIndex()) {
-               return;
-            }
-
             char nextCh = chars[index + 1];
 
             if (TokenUtils.isEndOfComment(ch, nextCh)) {
@@ -136,42 +135,77 @@ public class LexicalAnalyzer {
                 return;
             }
 
+            if (TokenUtils.isBreakline(ch)) {
+                nextLine();
+            }
+
             nextIndex();
         }
+
+        throw new InvalidLiteralException(String.format("Unclosed comment at line [%s], index [%s].", line, lineIndex));
     }
 
-    private void readInteger() {
-        char ch = chars[index];
+    private void readOtherTokenTypes() {
+        setStartIndex();
 
-        if (ch == TokenType.OPERATOR_MINUS.getSymbolAsChar()) {
+        while (isIndexWithinBound()) {
+            char ch = chars[index];
+            if (handleDelimiter(ch) || isOperatorThatDoesNotNeedWhitespace(ch)) {
+                return;
+            }
+
             addCharToToken(ch);
-            nextIndex();
         }
 
-        while (index < chars.length && TokenUtils.isIntegerValue(chars[index])) {
-            addCharToToken(chars[index]);
-            nextIndex();
-        }
-
-        int tokenAsInt = Integer.parseInt(token);
-
-        if (!TokenUtils.isValidIntegerValue(tokenAsInt)) {
-            throw new InvalidIntegerValueException(String.format("Invalid integer value at line [%s], index [%s]. Value must be within -32767 and 32767", line, lineIndex));
-        }
-
-        saveToken(TokenType.INTERGER_NUMBER);
+        saveToken();
     }
 
-    private void throwUnclosedLiteralException() {
-        throw new IllegalLiteralException(String.format("Unclosed string literal at line [%s], index [%s].", line, lineIndex));
+    private boolean handleDelimiter(char ch) {
+        if (TokenUtils.isDelimiter(ch)) {
+            if (TokenUtils.isSemicolon(ch)) {
+                previousIndex();
+                saveToken();
+                nextIndex();
+                setStartIndex();
+                addCharToToken(ch);
+            } else {
+                previousIndex();
+            }
+            saveToken();
+            nextIndex();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isOperatorThatDoesNotNeedWhitespace(char ch) {
+        char nextCh = TokenUtils.WHITESPACE;
+        if (!isLastIndexOrAfter()) {
+            nextCh = chars[index + 1];
+        }
+
+        boolean isOperatorWithLength1 = TokenType.isTypeThatDoesNotNeedWhitespace(String.valueOf(ch));
+        boolean isOperatorWithLength2 = TokenType.isTypeThatDoesNotNeedWhitespace(String.format("%s%s", ch, nextCh));
+
+        if (isOperatorWithLength1 || isOperatorWithLength2) {
+            previousIndex();
+            saveToken();
+            setStartIndex();
+            addCharToToken(ch);
+            if (isOperatorWithLength2) {
+                nextIndex();
+                addCharToToken(nextCh);
+            }
+            saveToken();
+            nextIndex();
+            return true;
+        }
+
+        return false;
     }
 
     private void setStartIndex() {
         startIndex = lineIndex;
-    }
-
-    private void setEndIndex() {
-        endIndex = lineIndex;
     }
 
     private void nextIndex() {
@@ -179,16 +213,14 @@ public class LexicalAnalyzer {
         lineIndex++;
     }
 
-    private void nextLine() {
-        line++;
-        lineIndex = 0;
+    private void previousIndex() {
+        index--;
+        lineIndex--;
     }
 
-    private void validateLiteralToken() {
-        //validate according language manual
-        if (token != null && token.length() > TokenUtils.MAX_LITERAL_LENGTH) {
-            throw new IllegalLiteralException(String.format("String literal at line [%s], starting at index [%s], has more than 255 characteres.", line, startIndex));     
-        }
+    private void nextLine() {
+        line++;
+        lineIndex = -1;
     }
 
     private void saveToken() {
@@ -196,27 +228,24 @@ public class LexicalAnalyzer {
     }
 
     private void saveToken(TokenType type) {
-        if (token == null) {
-            setStartIndex();
-            return;
+        if (type == null) {
+            type = TokenType.IDENTIFIER;
+            TokenUtils.validateIdentifierToken(token, line, startIndex);
         }
 
-        setEndIndex();
         Token t = new Token();
         t.setStartIndex(startIndex);
-        t.setEndIndex(index >= chars.length - 1 ? endIndex - 1 : endIndex);
-        t.setType(type == null ? TokenType.IDENTIFIER : type);
+        t.setEndIndex(lineIndex);
+        t.setType(type);
         t.setLine(line);
         t.setContent(token);
-        
+
         tokens.add(t);
 
         token = null;
-        nextIndex();
-        setStartIndex();
     }
 
-    private boolean isLastIndex() {
+    private boolean isLastIndexOrAfter() {
         return index >= chars.length - 1;
     }
 
