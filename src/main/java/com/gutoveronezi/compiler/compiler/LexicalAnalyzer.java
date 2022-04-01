@@ -6,6 +6,7 @@ import com.gutoveronezi.compiler.models.Token;
 import com.gutoveronezi.compiler.utils.ConsoleUtils;
 import com.gutoveronezi.compiler.utils.TokenUtils;
 import java.util.LinkedList;
+import org.apache.commons.lang3.StringUtils;
 
 public class LexicalAnalyzer {
 
@@ -36,8 +37,8 @@ public class LexicalAnalyzer {
                     continue;
                 }
 
-                if (TokenUtils.isWhitespace(ch)) {
-                    nextLine();
+                if (TokenUtils.isWhitespace(ch) || TokenUtils.isCarriageReturn(ch)) {
+                    nextIndex();
                     continue;
                 }
 
@@ -150,32 +151,40 @@ public class LexicalAnalyzer {
 
         while (isIndexWithinBound()) {
             char ch = chars[index];
-            if (handleDelimiter(ch) || isOperatorThatDoesNotNeedWhitespace(ch)) {
+            if (TokenUtils.isCarriageReturn(ch)) {
+                nextIndex();
+                continue;
+            }
+
+            if (isStartOfComment(ch) || isDelimiter(ch) || isOperatorThatDoesNotNeedWhitespace(ch)) {
                 return;
             }
 
             addCharToToken(ch);
+            nextIndex();
         }
 
         saveToken();
     }
 
-    private boolean handleDelimiter(char ch) {
-        if (TokenUtils.isDelimiter(ch)) {
-            if (TokenUtils.isSemicolon(ch)) {
-                previousIndex();
-                saveToken();
-                nextIndex();
-                setStartIndex();
-                addCharToToken(ch);
-            } else {
-                previousIndex();
-            }
+    private boolean isDelimiter(char ch) {
+        if (!TokenUtils.isDelimiter(ch)) {
+            return false;
+        }
+
+        if (TokenUtils.isSemicolon(ch)) {
+            previousIndex();
             saveToken();
             nextIndex();
-            return true;
+            setStartIndex();
+            addCharToToken(ch);
+        } else {
+            previousIndex();
         }
-        return false;
+
+        saveToken();
+        nextIndex();
+        return true;
     }
 
     private boolean isOperatorThatDoesNotNeedWhitespace(char ch) {
@@ -190,6 +199,7 @@ public class LexicalAnalyzer {
         if (isOperatorWithLength1 || isOperatorWithLength2) {
             previousIndex();
             saveToken();
+            nextIndex();
             setStartIndex();
             addCharToToken(ch);
             if (isOperatorWithLength2) {
@@ -202,6 +212,22 @@ public class LexicalAnalyzer {
         }
 
         return false;
+    }
+
+    private boolean isStartOfComment(char ch) {
+        char nextCh = TokenUtils.WHITESPACE;
+        if (!isLastIndexOrAfter()) {
+            nextCh = chars[index + 1];
+        }
+
+        if (!TokenUtils.isStartOfComment(ch, nextCh)) {
+            return false;
+        }
+
+        previousIndex();
+        saveToken();
+        nextIndex();
+        return true;
     }
 
     private void setStartIndex() {
@@ -228,6 +254,10 @@ public class LexicalAnalyzer {
     }
 
     private void saveToken(TokenType type) {
+        if (StringUtils.isBlank(token)) {
+            return;
+        }
+
         if (type == null) {
             type = TokenType.IDENTIFIER;
             TokenUtils.validateIdentifierToken(token, line, startIndex);
@@ -242,7 +272,7 @@ public class LexicalAnalyzer {
 
         tokens.add(t);
 
-        token = null;
+        token = "";
     }
 
     private boolean isLastIndexOrAfter() {
@@ -250,9 +280,6 @@ public class LexicalAnalyzer {
     }
 
     private void addCharToToken(char ch) {
-        if (token == null) {
-            token = "";
-        }
         token = String.format("%s%s", token, ch);
     }
 }

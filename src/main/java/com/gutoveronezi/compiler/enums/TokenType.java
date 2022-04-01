@@ -85,7 +85,7 @@ public enum TokenType {
 
     public static TokenType getFromSymbol(String symbol) {
         for (TokenType type : TokenType.values()) {
-            if (type.getSymbol() != null && symbol != null && type.getSymbol().equals(symbol)) {
+            if (type.getSymbol() != null && symbol != null && type.getSymbol().equalsIgnoreCase(symbol)) {
                 return type;
             }
         }

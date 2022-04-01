@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 public class TokenUtils {
 
     public static final int MAX_LITERAL_LENGTH = 255;
+    public static final char CARRIAGE_RETURN = '\r';
     public static final char BREAKLINE = '\n';
     public static final char WHITESPACE = ' ';
 
@@ -24,7 +25,11 @@ public class TokenUtils {
     public static boolean isBreakline(char ch) {
         return ch == BREAKLINE;
     }
-    
+
+    public static boolean isCarriageReturn(char ch) {
+        return ch == CARRIAGE_RETURN;
+    }
+
     public static boolean isSemicolon(char ch) {
         return ch == TokenType.SEMICOLON.getSymbolAsChar();
     }
@@ -42,7 +47,7 @@ public class TokenUtils {
     }
 
     public static boolean isEndOfComment(char ch, char nextCh) {
-        return ch == TokenType.OPERATOR_MULTIPLIER.getSymbolAsChar() && nextCh == TokenType.OPEN_PARENTHESIS.getSymbolAsChar();
+        return ch == TokenType.OPERATOR_MULTIPLIER.getSymbolAsChar() && nextCh == TokenType.CLOSE_PARENTHESIS.getSymbolAsChar();
     }
 
     public static boolean isIntegerValue(char ch) {
