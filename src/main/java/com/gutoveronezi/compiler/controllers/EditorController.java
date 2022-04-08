@@ -41,6 +41,10 @@ public class EditorController {
     
     private void addTokensToTable(LinkedList<Token> tokens) {
         ((DefaultTableModel) view.getTokenTable().getModel()).setRowCount(0);
+        if (tokens == null) {
+            return;
+        }
+
         for (int i = 0; i < tokens.size(); i++) {
             Token token = tokens.get(i);
             Object[] object = {i + 1, token.getType().toString(), token.getContent(),

@@ -59,7 +59,7 @@ public class TokenUtils {
     }
 
     public static boolean isValidIdentifier(String token) {
-        Pattern pattern = Pattern.compile("[a-z][0-9a-z]{29}$", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("[a-z][0-9a-z]{0,29}$", Pattern.CASE_INSENSITIVE);
         return pattern.matcher(token).matches();
     }
 
@@ -73,14 +73,14 @@ public class TokenUtils {
 
     public static void validateLiteralToken(String token, int line, int startIndex) {
         if (token != null && token.length() > TokenUtils.MAX_LITERAL_LENGTH) {
-            throw new InvalidLiteralException(String.format("String literal at line [%s], starting at index [%s], has more than 255 characteres.", line, startIndex));     
+            throw new InvalidLiteralException(String.format("String literal at line [%s], starting at index [%s], has more than 255 characteres.", line, startIndex));
         }
     }
 
     public static void validateIdentifierToken(String token, int line, int startIndex) {
-        if (isValidIdentifier(token)) {
-            throw new InvalidIdentifierException(String.format("Identifier at line [%s], starting at index [%s], is invalid. Identifiers must be composed of an alphabetical"
-                    + " character followed by alphanumeric characters and have at maximum 30 characters", line, startIndex));     
+        if (!isValidIdentifier(token)) {
+            throw new InvalidIdentifierException(String.format("Identifier at line [%s], starting at index [%s], has [%s] characters. Identifiers must be composed of an alphabetical"
+                    + " character followed by alphanumeric characters and have at maximum 30 characters", line, startIndex, token.length()));     
         }
     }
 

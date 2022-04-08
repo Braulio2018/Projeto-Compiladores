@@ -11,6 +11,10 @@ public class ConsoleUtils {
         this.view = view;
     }
 
+    public void logInError(String stringToLog) {
+        log(stringToLog, LogLevel.ERROR);
+    }
+
     public void logInInfo(String stringToLog) {
         log(stringToLog, LogLevel.INFO);
     }

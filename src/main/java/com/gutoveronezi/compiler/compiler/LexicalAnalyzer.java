@@ -66,6 +66,9 @@ public class LexicalAnalyzer {
             }
     
             return tokens;
+        } catch (Exception e) {
+            console.logInError(String.format("%s - %s", e.getClass().getSimpleName(), e.getMessage()));
+            return null;
         } finally {
             console.logInInfo("Finalizing lexical analysis.");
         }
