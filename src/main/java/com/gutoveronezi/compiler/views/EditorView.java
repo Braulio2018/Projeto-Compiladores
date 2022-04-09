@@ -27,7 +27,6 @@ public class EditorView extends javax.swing.JFrame {
         newFileButton.setIcon(UIManager.getIcon("FileView.fileIcon"));
         openFileButton.setIcon(UIManager.getIcon("FileView.directoryIcon"));
         saveFileButton.setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
-        closeFileButton.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
         runCompiilerButton.setIcon(UIManager.getIcon("FileView.computerIcon"));
     }
 
@@ -39,7 +38,6 @@ public class EditorView extends javax.swing.JFrame {
         newFileButton = new javax.swing.JButton();
         openFileButton = new javax.swing.JButton();
         saveFileButton = new javax.swing.JButton();
-        closeFileButton = new javax.swing.JButton();
         menuSeparator1 = new javax.swing.JSeparator();
         runCompiilerButton = new javax.swing.JButton();
         infoPanel = new javax.swing.JPanel();
@@ -77,8 +75,6 @@ public class EditorView extends javax.swing.JFrame {
             }
         });
 
-        closeFileButton.setToolTipText("Close the file");
-
         menuSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
         runCompiilerButton.setToolTipText("Run the compiler");
@@ -99,8 +95,6 @@ public class EditorView extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(saveFileButton, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(closeFileButton, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(menuSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(runCompiilerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -108,10 +102,9 @@ public class EditorView extends javax.swing.JFrame {
         );
         menuPanelLayout.setVerticalGroup(
             menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(newFileButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(newFileButton, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE)
             .addComponent(openFileButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(saveFileButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(closeFileButton, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE)
             .addComponent(menuSeparator1)
             .addComponent(runCompiilerButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -156,9 +149,9 @@ public class EditorView extends javax.swing.JFrame {
 
         editorPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        editorPane.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                editorPanePropertyChange(evt);
+        editorPane.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                editorPaneKeyPressed(evt);
             }
         });
         editorScrollPane.setViewportView(editorPane);
@@ -244,12 +237,11 @@ public class EditorView extends javax.swing.JFrame {
         controller.saveFile();
     }//GEN-LAST:event_saveFileButtonActionPerformed
 
-    private void editorPanePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_editorPanePropertyChange
+    private void editorPaneKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editorPaneKeyPressed
         setIsEditorTouched(true);
-    }//GEN-LAST:event_editorPanePropertyChange
+    }//GEN-LAST:event_editorPaneKeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton closeFileButton;
     private javax.swing.JPanel consolePanel;
     private javax.swing.JScrollPane consoleScrollPanel;
     private javax.swing.JTextArea consoleTextArea;

@@ -1,6 +1,8 @@
 package com.gutoveronezi.compiler.models;
 
 import com.gutoveronezi.compiler.enums.TokenType;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class Token {
 
@@ -53,4 +55,8 @@ public class Token {
         this.endIndex = endIndex;
     }
 
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    }    
 }

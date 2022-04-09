@@ -14,7 +14,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
-import org.apache.commons.lang3.StringUtils;
 
 public class EditorController {
 
@@ -27,7 +26,7 @@ public class EditorController {
     }
 
     public int newFile() {
-        int answer = 0;
+        int answer = -1;
         if (view.isEditorTouched()) {
             answer = JOptionPane.showConfirmDialog(null, "Do you want to save the changes in the editor?", "New file", JOptionPane.YES_NO_CANCEL_OPTION);
         }
@@ -40,8 +39,13 @@ public class EditorController {
             saveFile();
         }
 
-        view.getEditorPane().setText("");
+        if (view.getCurrentFile() != null) {
+            console.logInDebug(String.format("Closing file [%s].", view.getCurrentFile().getAbsolutePath()));
+        }
 
+        view.getEditorPane().setText("");
+        view.setIsEditorTouched(false);
+        view.setCurrentFile(null);
         return answer;
     }
 
@@ -66,7 +70,7 @@ public class EditorController {
                 return;
             }
         }
-        console.logInInfo("No file was chosen.");
+        console.logInInfo("No file was opened.");
     }
 
     private String loadFile(File file) {
@@ -80,7 +84,7 @@ public class EditorController {
             if (fullData.length() > 0) {
                 fullData.setLength(fullData.length() - 1);
             }
-            console.logInInfo(String.format("File [%s] was read.", file.getAbsolutePath()));
+            console.logInInfo(String.format("File [%s] was loaded.", file.getAbsolutePath()));
         } catch (FileNotFoundException e) {
             console.logInError(String.format("Failed to load file [%s] due to [%s].", file.getAbsolutePath(), e.getMessage()));
             return null;
@@ -111,6 +115,7 @@ public class EditorController {
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             byte[] strToBytes = editorText.getBytes();
             outputStream.write(strToBytes);
+            view.setIsEditorTouched(false);
         } catch (IOException ex) {
             console.logInError(String.format("Failed to save content to file [%s] due to [%s].", file.getAbsolutePath(), ex.getMessage()));
         }

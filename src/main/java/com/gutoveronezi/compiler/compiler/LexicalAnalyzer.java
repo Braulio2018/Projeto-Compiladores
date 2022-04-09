@@ -24,6 +24,10 @@ public class LexicalAnalyzer {
     }
 
     public LinkedList<Token> analyze(String code) {
+        if (StringUtils.isBlank(code)) {
+            return null;
+        }
+
         console.logInInfo("Starting lexical analysis...");
         chars = code.toCharArray();
  
@@ -79,6 +83,7 @@ public class LexicalAnalyzer {
     }
 
     private void readLiteral() {
+        console.logInDebug(String.format("Reading string literal at line [%s], starting at index [%s].", line, lineIndex));
         setStartIndex();
         nextIndex();
 
@@ -105,6 +110,7 @@ public class LexicalAnalyzer {
     }
 
     private void readInteger() {
+        console.logInDebug(String.format("Reading integer value at line [%s], starting at index [%s].", line, lineIndex));
         setStartIndex();
         char ch = chars[index];
 
@@ -126,6 +132,7 @@ public class LexicalAnalyzer {
     }
 
     private void readComment() {
+        console.logInDebug(String.format("Reading comment at line [%s], starting at index [%s].", line, lineIndex));
         nextIndex();
         nextIndex();
 
@@ -150,6 +157,7 @@ public class LexicalAnalyzer {
     }
 
     private void readOtherTokenTypes() {
+        console.logInDebug(String.format("Reading other token types at line [%s], starting at index [%s].", line, lineIndex));
         setStartIndex();
 
         while (isIndexWithinBound()) {
@@ -273,6 +281,7 @@ public class LexicalAnalyzer {
         t.setLine(line);
         t.setContent(token);
 
+        console.logInDebug(String.format("Adding token %s to stack.", t));
         tokens.add(t);
 
         token = "";
