@@ -2,16 +2,18 @@ package com.gutoveronezi.compiler.views;
 
 import com.gutoveronezi.compiler.controllers.EditorController;
 import com.gutoveronezi.compiler.utils.ConsoleUtils;
+import java.io.File;
 import javax.swing.JEditorPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
-import javax.swing.table.DefaultTableModel;
 
 public class EditorView extends javax.swing.JFrame {
 
     private final EditorController controller;
     private final ConsoleUtils console;
+    private File currentFile = null;
+    private boolean isEditorTouched = false;
 
     public EditorView() {
         initComponents();
@@ -62,8 +64,18 @@ public class EditorView extends javax.swing.JFrame {
         });
 
         openFileButton.setToolTipText("Open a file");
+        openFileButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openFileButtonActionPerformed(evt);
+            }
+        });
 
         saveFileButton.setToolTipText("Save the file");
+        saveFileButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveFileButtonActionPerformed(evt);
+            }
+        });
 
         closeFileButton.setToolTipText("Close the file");
 
@@ -144,6 +156,11 @@ public class EditorView extends javax.swing.JFrame {
 
         editorPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        editorPane.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                editorPanePropertyChange(evt);
+            }
+        });
         editorScrollPane.setViewportView(editorPane);
 
         javax.swing.GroupLayout editorPanelLayout = new javax.swing.GroupLayout(editorPanel);
@@ -210,12 +227,26 @@ public class EditorView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void newFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newFileButtonActionPerformed
-        controller.newFile();
+        if (controller.newFile() != 2) {
+            console.logInDebug("Cleaning the editor.");
+        }
     }//GEN-LAST:event_newFileButtonActionPerformed
 
     private void runCompiilerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runCompiilerButtonActionPerformed
         controller.runCompiler(editorPane.getText());
     }//GEN-LAST:event_runCompiilerButtonActionPerformed
+
+    private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
+        controller.openFile();
+    }//GEN-LAST:event_openFileButtonActionPerformed
+
+    private void saveFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveFileButtonActionPerformed
+        controller.saveFile();
+    }//GEN-LAST:event_saveFileButtonActionPerformed
+
+    private void editorPanePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_editorPanePropertyChange
+        setIsEditorTouched(true);
+    }//GEN-LAST:event_editorPanePropertyChange
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeFileButton;
@@ -250,6 +281,22 @@ public class EditorView extends javax.swing.JFrame {
 
     public JTable getTokenTable() {
         return tokenTable;
+    }
+
+    public File getCurrentFile() {
+        return currentFile;
+    }
+
+    public void setCurrentFile(File currentFile) {
+        this.currentFile = currentFile;
+    }
+
+    public boolean isEditorTouched() {
+        return isEditorTouched;
+    }
+
+    public void setIsEditorTouched(boolean isEditorTouched) {
+        this.isEditorTouched = isEditorTouched;
     }
 
 }
