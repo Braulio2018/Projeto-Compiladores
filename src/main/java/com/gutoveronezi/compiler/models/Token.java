@@ -11,6 +11,7 @@ public class Token {
     private String content;
     private int startIndex;
     private int endIndex;
+    private boolean isTerminal;
 
     public Token() {
     }
@@ -55,8 +56,17 @@ public class Token {
         this.endIndex = endIndex;
     }
 
+    public boolean isIsTerminal() {
+        return isTerminal;
+    }
+
+    public void setIsTerminal(boolean isTerminal) {
+        this.isTerminal = isTerminal;
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
     }    
+
 }

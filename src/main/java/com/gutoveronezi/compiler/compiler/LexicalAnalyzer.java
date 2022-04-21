@@ -204,8 +204,8 @@ public class LexicalAnalyzer {
             nextCh = chars[index + 1];
         }
 
-        boolean isOperatorWithLength1 = TokenType.isTypeThatDoesNotNeedWhitespace(String.valueOf(ch));
-        boolean isOperatorWithLength2 = TokenType.isTypeThatDoesNotNeedWhitespace(String.format("%s%s", ch, nextCh));
+        boolean isOperatorWithLength1 = TokenType.isTerminalTypeThatDoesNotNeedWhitespace(String.valueOf(ch));
+        boolean isOperatorWithLength2 = TokenType.isTerminalTypeThatDoesNotNeedWhitespace(String.format("%s%s", ch, nextCh));
 
         if (isOperatorWithLength1 || isOperatorWithLength2) {
             previousIndex();
@@ -261,7 +261,7 @@ public class LexicalAnalyzer {
     }
 
     private void saveToken() {
-        saveToken(TokenType.getFromSymbol(token));
+        saveToken(TokenType.getTerminalFromSymbol(token));
     }
 
     private void saveToken(TokenType type) {
@@ -280,6 +280,7 @@ public class LexicalAnalyzer {
         t.setType(type);
         t.setLine(line);
         t.setContent(token);
+        t.setIsTerminal(true);
 
         console.logInDebug(String.format("Adding token %s to stack.", t));
         tokens.add(t);
