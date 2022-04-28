@@ -1,6 +1,8 @@
 package com.gutoveronezi.compiler.controllers;
 
 import com.gutoveronezi.compiler.compiler.LexicalAnalyzer;
+import com.gutoveronezi.compiler.compiler.SyntacticAnalyzer;
+import com.gutoveronezi.compiler.enums.TokenType;
 import com.gutoveronezi.compiler.models.Token;
 import com.gutoveronezi.compiler.utils.ConsoleUtils;
 import com.gutoveronezi.compiler.views.EditorView;
@@ -10,10 +12,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.Stack;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import org.apache.commons.lang3.math.NumberUtils;
 
 public class EditorController {
 
@@ -122,13 +126,26 @@ public class EditorController {
     }
 
     public void runCompiler(String text) {
-        LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(console);
-        LinkedList<Token> tokens = lexicalAnalyzer.analyze(text);
-        addTokensToTable(tokens);
+        LinkedList<Token> userTokens = runLexicalAnalysis(text);
+        runSyntacticAnalysis(userTokens);
     }
 
-    private void addTokensToTable(LinkedList<Token> tokens) {
-        ((DefaultTableModel) view.getTokenTable().getModel()).setRowCount(0);
+    private LinkedList<Token> runLexicalAnalysis(String text) {
+        LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(console);
+        LinkedList<Token> tokens = lexicalAnalyzer.analyze(text);
+        addTokensToTokensTable(tokens);
+        return tokens;
+    }
+
+    private void runSyntacticAnalysis(LinkedList<Token> userTokens) {
+        SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(console, userTokens, setFirstParserToken());
+        syntacticAnalyzer.processNextSystemToken();
+    }
+   
+    private void addTokensToTokensTable(LinkedList<Token> tokens) {
+        DefaultTableModel model = (DefaultTableModel) view.getTokenTable().getModel();
+        model.setRowCount(0);
+
         if (tokens == null) {
             return;
         }
@@ -137,7 +154,45 @@ public class EditorController {
             Token token = tokens.get(i);
             Object[] object = {i + 1, token.getType().toString(), token.getContent(),
                 token.getLine(), token.getStartIndex(), token.getEndIndex()};
-            ((DefaultTableModel) view.getTokenTable().getModel()).addRow(object);
+            model.addRow(object);
         }
     }
+
+    private Stack<Token> parseParserTableAsTokenStack() {
+        DefaultTableModel model = getParserTableModel();
+
+        Stack<Token> tokens = new Stack<>();
+
+        for (int i = tokens.size() - 1; i == 0; i--) {
+            String parserTokenAsString = (String) model.getValueAt(i, 0);
+            int tokenId = NumberUtils.toInt(parserTokenAsString.split("-")[0]);
+            TokenType tokenTypeFromId = TokenType.getTokenTypeFromId(tokenId);
+            tokens.add(new Token(tokenTypeFromId));
+        }
+
+        return tokens;
+    }
+
+    private void parseTokenStackToParserTable(Stack<Token> tokenStack) {
+        DefaultTableModel model = getParserTableModel();
+
+        for (int i = 0; i < tokenStack.size(); i++) {
+            Token token = tokenStack.get(i);
+            Object[] object = {i + 1, token.getType().toString()};
+            model.addRow(object);
+        }
+    }
+
+    private Stack<Token> setFirstParserToken() {
+        getParserTableModel().setRowCount(0);
+        Stack<Token> tokens = new Stack<>();
+        tokens.add(new Token(TokenType.PROGRAMA));
+        parseTokenStackToParserTable(tokens);
+        return tokens;
+    }
+
+    private DefaultTableModel getParserTableModel() {
+        return (DefaultTableModel) view.getParserTable().getModel();
+    }
+
 }

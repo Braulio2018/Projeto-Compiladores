@@ -4,7 +4,7 @@ import com.gutoveronezi.compiler.enums.TokenType;
 import com.gutoveronezi.compiler.exceptions.InvalidIdentifierException;
 import com.gutoveronezi.compiler.exceptions.InvalidLiteralException;
 import com.gutoveronezi.compiler.exceptions.InvalidIntegerValueException;
-import java.util.regex.Matcher;
+import com.gutoveronezi.compiler.models.Token;
 import java.util.regex.Pattern;
 
 public class TokenUtils {
@@ -84,4 +84,7 @@ public class TokenUtils {
         }
     }
 
+    public static String buildTokenParserKey(Token t1, Token t2) {
+        return String.format("%s,%s", t1.getType().getId(), t2.getType().getId());
+    }
 }

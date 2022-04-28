@@ -7,6 +7,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import javax.swing.table.DefaultTableModel;
 
 public class EditorView extends javax.swing.JFrame {
 
@@ -20,6 +21,7 @@ public class EditorView extends javax.swing.JFrame {
         setIcons();
         console = new ConsoleUtils(this);
         controller = new EditorController(this);
+        ((DefaultTableModel) parserTable.getModel()).setRowCount(0);
         console.logInInfo("Application started!");
     }
 
@@ -40,9 +42,13 @@ public class EditorView extends javax.swing.JFrame {
         saveFileButton = new javax.swing.JButton();
         menuSeparator1 = new javax.swing.JSeparator();
         runCompiilerButton = new javax.swing.JButton();
+        menuSeparator2 = new javax.swing.JSeparator();
+        debugSyntatical = new javax.swing.JButton();
         infoPanel = new javax.swing.JPanel();
         tokenTableScrollPane = new javax.swing.JScrollPane();
         tokenTable = new javax.swing.JTable();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        parserTable = new javax.swing.JTable();
         editorPanel = new javax.swing.JPanel();
         editorScrollPane = new javax.swing.JScrollPane();
         editorPane = new javax.swing.JEditorPane();
@@ -84,6 +90,10 @@ public class EditorView extends javax.swing.JFrame {
             }
         });
 
+        menuSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        debugSyntatical.setToolTipText("Run the compiler");
+
         javax.swing.GroupLayout menuPanelLayout = new javax.swing.GroupLayout(menuPanel);
         menuPanel.setLayout(menuPanelLayout);
         menuPanelLayout.setHorizontalGroup(
@@ -98,6 +108,10 @@ public class EditorView extends javax.swing.JFrame {
                 .addComponent(menuSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(runCompiilerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(menuSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(debugSyntatical, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         menuPanelLayout.setVerticalGroup(
@@ -107,6 +121,8 @@ public class EditorView extends javax.swing.JFrame {
             .addComponent(saveFileButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(menuSeparator1)
             .addComponent(runCompiilerButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(menuSeparator2)
+            .addComponent(debugSyntatical, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         infoPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -136,15 +152,51 @@ public class EditorView extends javax.swing.JFrame {
             tokenTable.getColumnModel().getColumn(5).setResizable(false);
         }
 
+        parserTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Nº", "Token"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(parserTable);
+        if (parserTable.getColumnModel().getColumnCount() > 0) {
+            parserTable.getColumnModel().getColumn(0).setResizable(false);
+            parserTable.getColumnModel().getColumn(1).setResizable(false);
+        }
+
         javax.swing.GroupLayout infoPanelLayout = new javax.swing.GroupLayout(infoPanel);
         infoPanel.setLayout(infoPanelLayout);
         infoPanelLayout.setHorizontalGroup(
             infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(tokenTableScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 663, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
         );
         infoPanelLayout.setVerticalGroup(
             infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tokenTableScrollPane, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, infoPanelLayout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(tokenTableScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         editorPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -182,7 +234,7 @@ public class EditorView extends javax.swing.JFrame {
         );
         consolePanelLayout.setVerticalGroup(
             consolePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(consoleScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
+            .addComponent(consoleScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -245,14 +297,18 @@ public class EditorView extends javax.swing.JFrame {
     private javax.swing.JPanel consolePanel;
     private javax.swing.JScrollPane consoleScrollPanel;
     private javax.swing.JTextArea consoleTextArea;
+    private javax.swing.JButton debugSyntatical;
     private javax.swing.JEditorPane editorPane;
     private javax.swing.JPanel editorPanel;
     private javax.swing.JScrollPane editorScrollPane;
     private javax.swing.JPanel infoPanel;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel menuPanel;
     private javax.swing.JSeparator menuSeparator1;
+    private javax.swing.JSeparator menuSeparator2;
     private javax.swing.JButton newFileButton;
     private javax.swing.JButton openFileButton;
+    private javax.swing.JTable parserTable;
     private javax.swing.JButton runCompiilerButton;
     private javax.swing.JButton saveFileButton;
     private javax.swing.JTable tokenTable;
@@ -291,4 +347,11 @@ public class EditorView extends javax.swing.JFrame {
         this.isEditorTouched = isEditorTouched;
     }
 
+    public JTable getParserTable() {
+        return parserTable;
+    }
+
+    public void setParserTable(JTable parserTable) {
+        this.parserTable = parserTable;
+    }
 }

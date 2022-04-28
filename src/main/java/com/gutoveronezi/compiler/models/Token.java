@@ -16,6 +16,10 @@ public class Token {
     public Token() {
     }
 
+    public Token(TokenType tokenType) {
+        this.type = tokenType;
+    }
+
     public TokenType getType() {
         return type;
     }
@@ -56,7 +60,7 @@ public class Token {
         this.endIndex = endIndex;
     }
 
-    public boolean isIsTerminal() {
+    public boolean isTerminal() {
         return isTerminal;
     }
 

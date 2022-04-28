@@ -128,8 +128,28 @@ public enum TokenType {
     }
 
     public static TokenType getTerminalFromSymbol(String symbol) {
-        for (TokenType type : TokenType.values()) {
+        for (TokenType type : values()) {
             if (type.isTerminal() && ObjectUtils.allNotNull(type.getSymbol(), symbol) && type.getSymbol().equalsIgnoreCase(symbol)) {
+                return type;
+            }
+        }
+
+        return null;
+    }
+
+    public static TokenType getNonTerminalFromSymbol(String symbol) {
+        for (TokenType type : values()) {
+            if (!type.isTerminal() && type.getSymbol().equalsIgnoreCase(symbol)) {
+                return type;
+            }
+        }
+
+        return null;
+    }
+
+    public static TokenType getTokenTypeFromId(int id) {
+        for (TokenType type : values()) {
+            if (type.getId() == id) {
                 return type;
             }
         }
