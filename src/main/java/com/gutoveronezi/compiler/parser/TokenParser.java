@@ -1,6 +1,5 @@
 package com.gutoveronezi.compiler.parser;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -215,7 +214,7 @@ public class TokenParser {
 
         String[] values = value.split("\\|");
 
-        for (int i = values.length - 1; i == 0; i--) {
+        for (int i = values.length - 1; i > -1; i--) {
             result.add(values[i]);
         }
 

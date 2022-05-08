@@ -8,6 +8,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
+import org.apache.commons.lang3.StringUtils;
 
 public class EditorView extends javax.swing.JFrame {
 
@@ -44,6 +45,7 @@ public class EditorView extends javax.swing.JFrame {
         runCompiilerButton = new javax.swing.JButton();
         menuSeparator2 = new javax.swing.JSeparator();
         debugSyntatical = new javax.swing.JButton();
+        intervalText = new javax.swing.JTextField();
         infoPanel = new javax.swing.JPanel();
         tokenTableScrollPane = new javax.swing.JScrollPane();
         tokenTable = new javax.swing.JTable();
@@ -94,6 +96,12 @@ public class EditorView extends javax.swing.JFrame {
 
         debugSyntatical.setToolTipText("Run the compiler");
 
+        intervalText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                intervalTextActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout menuPanelLayout = new javax.swing.GroupLayout(menuPanel);
         menuPanel.setLayout(menuPanelLayout);
         menuPanelLayout.setHorizontalGroup(
@@ -112,6 +120,8 @@ public class EditorView extends javax.swing.JFrame {
                 .addComponent(menuSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(debugSyntatical, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(93, 93, 93)
+                .addComponent(intervalText, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         menuPanelLayout.setVerticalGroup(
@@ -123,6 +133,7 @@ public class EditorView extends javax.swing.JFrame {
             .addComponent(runCompiilerButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(menuSeparator2)
             .addComponent(debugSyntatical, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(intervalText, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         infoPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -234,7 +245,9 @@ public class EditorView extends javax.swing.JFrame {
         );
         consolePanelLayout.setVerticalGroup(
             consolePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(consoleScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(consolePanelLayout.createSequentialGroup()
+                .addComponent(consoleScrollPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -278,7 +291,11 @@ public class EditorView extends javax.swing.JFrame {
     }//GEN-LAST:event_newFileButtonActionPerformed
 
     private void runCompiilerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runCompiilerButtonActionPerformed
-        controller.runCompiler(editorPane.getText());
+        int interval = 10;
+        if (StringUtils.isNotBlank(intervalText.getText())) {
+            interval = Integer.parseInt(intervalText.getText());
+        }
+        controller.runCompiler(editorPane.getText(), interval);
     }//GEN-LAST:event_runCompiilerButtonActionPerformed
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
@@ -293,6 +310,10 @@ public class EditorView extends javax.swing.JFrame {
         setIsEditorTouched(true);
     }//GEN-LAST:event_editorPaneKeyPressed
 
+    private void intervalTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_intervalTextActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_intervalTextActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel consolePanel;
     private javax.swing.JScrollPane consoleScrollPanel;
@@ -302,6 +323,7 @@ public class EditorView extends javax.swing.JFrame {
     private javax.swing.JPanel editorPanel;
     private javax.swing.JScrollPane editorScrollPane;
     private javax.swing.JPanel infoPanel;
+    private javax.swing.JTextField intervalText;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel menuPanel;
     private javax.swing.JSeparator menuSeparator1;

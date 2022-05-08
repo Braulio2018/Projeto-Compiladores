@@ -11,7 +11,6 @@ public class Token {
     private String content;
     private int startIndex;
     private int endIndex;
-    private boolean isTerminal;
 
     public Token() {
     }
@@ -58,14 +57,6 @@ public class Token {
 
     public void setEndIndex(int endIndex) {
         this.endIndex = endIndex;
-    }
-
-    public boolean isTerminal() {
-        return isTerminal;
-    }
-
-    public void setIsTerminal(boolean isTerminal) {
-        this.isTerminal = isTerminal;
     }
 
     @Override

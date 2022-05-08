@@ -84,7 +84,7 @@ public class TokenUtils {
         }
     }
 
-    public static String buildTokenParserKey(Token t1, Token t2) {
-        return String.format("%s,%s", t1.getType().getId(), t2.getType().getId());
+    public static String buildTokenParserKey(TokenType t1, Token t2) {
+        return String.format("%s,%s", t1.getId(), t2.getType().getId());
     }
 }

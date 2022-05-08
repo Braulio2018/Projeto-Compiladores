@@ -280,7 +280,6 @@ public class LexicalAnalyzer {
         t.setType(type);
         t.setLine(line);
         t.setContent(token);
-        t.setIsTerminal(true);
 
         console.logInDebug(String.format("Adding token %s to stack.", t));
         tokens.add(t);

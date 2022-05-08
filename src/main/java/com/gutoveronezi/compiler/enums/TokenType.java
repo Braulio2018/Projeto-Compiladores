@@ -137,9 +137,21 @@ public enum TokenType {
         return null;
     }
 
-    public static TokenType getNonTerminalFromSymbol(String symbol) {
+    public static TokenType getFromSymbol(String symbol) {
+        if (symbol.equalsIgnoreCase("identificador")) { 
+            return IDENTIFIER;
+        }
+        
+        if (symbol.equalsIgnoreCase("inteiro")) {
+            return INTERGER_NUMBER;
+        }
+
+        if (symbol.equalsIgnoreCase("expressao")) { 
+            return LITERAL;
+        }
+
         for (TokenType type : values()) {
-            if (!type.isTerminal() && type.getSymbol().equalsIgnoreCase(symbol)) {
+            if (symbol.equalsIgnoreCase(type.getSymbol())) {
                 return type;
             }
         }

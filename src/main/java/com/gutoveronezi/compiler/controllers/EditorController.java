@@ -3,6 +3,8 @@ package com.gutoveronezi.compiler.controllers;
 import com.gutoveronezi.compiler.compiler.LexicalAnalyzer;
 import com.gutoveronezi.compiler.compiler.SyntacticAnalyzer;
 import com.gutoveronezi.compiler.enums.TokenType;
+import com.gutoveronezi.compiler.exceptions.InvalidStateException;
+import com.gutoveronezi.compiler.exceptions.InvalidSyntaxException;
 import com.gutoveronezi.compiler.models.Token;
 import com.gutoveronezi.compiler.utils.ConsoleUtils;
 import com.gutoveronezi.compiler.views.EditorView;
@@ -13,11 +15,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.tuple.Pair; 
 
 public class EditorController {
 
@@ -125,21 +130,57 @@ public class EditorController {
         }
     }
 
-    public void runCompiler(String text) {
-        LinkedList<Token> userTokens = runLexicalAnalysis(text);
-        runSyntacticAnalysis(userTokens);
+    public void runCompiler(String text, int interval) {
+        new Thread(() -> {
+            console.logInInfo("Starting compiling...");
+            LinkedList<Token> userTokens = runLexicalAnalysis(text);
+            runSyntacticAnalysis(userTokens, interval);
+            console.logInInfo("Finishing compiling...");     
+        }).start();
     }
 
-    private LinkedList<Token> runLexicalAnalysis(String text) {
+    private LinkedList<Token> runLexicalAnalysis(String text) { 
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(console);
         LinkedList<Token> tokens = lexicalAnalyzer.analyze(text);
         addTokensToTokensTable(tokens);
         return tokens;
     }
 
-    private void runSyntacticAnalysis(LinkedList<Token> userTokens) {
-        SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(console, userTokens, setFirstParserToken());
-        syntacticAnalyzer.processNextSystemToken();
+    private void runSyntacticAnalysis(LinkedList<Token> userTokens, int interval) {
+        if (userTokens == null) { 
+            console.logInDebug("Not running syntatic analyzer due to user's token list is null.");
+            return;
+        }
+
+        if (!userTokens.isEmpty() && userTokens.get(0).getType() != TokenType.PROGRAM) {
+            console.logInError("The code must start with the token 'program'.");
+            return;
+        }
+ 
+        Stack<TokenType> systemTokenTypeStack = setFirstParserToken();
+        Stack<Token> userTokenStack = new Stack<>();
+        SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(console, userTokens, systemTokenTypeStack);
+        try {
+            Pair <Stack<TokenType>, Stack<Token>> pairTokens;
+            while (!systemTokenTypeStack.isEmpty()) {
+                pairTokens = syntacticAnalyzer.processNextSystemToken();
+                systemTokenTypeStack = pairTokens.getLeft();
+                userTokenStack = pairTokens.getRight();
+
+                parseTokensStackToParserTable(systemTokenTypeStack);
+                parseTokensStackToTokensTable(userTokenStack);
+                Thread.sleep(interval);
+            }
+
+            if (!userTokenStack.isEmpty()) {
+                throw new InvalidSyntaxException("The code does not match the language syntax.");
+            }
+            parseTokensStackToParserTable(systemTokenTypeStack);
+        } catch (InvalidStateException | InvalidSyntaxException e) {
+            console.logInError(e.getMessage());
+        } catch (InterruptedException ex) {
+            Logger.getLogger(EditorController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
    
     private void addTokensToTokensTable(LinkedList<Token> tokens) {
@@ -158,41 +199,37 @@ public class EditorController {
         }
     }
 
-    private Stack<Token> parseParserTableAsTokenStack() {
+    private void parseTokensStackToParserTable(Stack<TokenType> tokenTypeStack) {
         DefaultTableModel model = getParserTableModel();
+        model.setRowCount(0);
 
-        Stack<Token> tokens = new Stack<>();
-
-        for (int i = tokens.size() - 1; i == 0; i--) {
-            String parserTokenAsString = (String) model.getValueAt(i, 0);
-            int tokenId = NumberUtils.toInt(parserTokenAsString.split("-")[0]);
-            TokenType tokenTypeFromId = TokenType.getTokenTypeFromId(tokenId);
-            tokens.add(new Token(tokenTypeFromId));
-        }
-
-        return tokens;
-    }
-
-    private void parseTokenStackToParserTable(Stack<Token> tokenStack) {
-        DefaultTableModel model = getParserTableModel();
-
-        for (int i = 0; i < tokenStack.size(); i++) {
-            Token token = tokenStack.get(i);
-            Object[] object = {i + 1, token.getType().toString()};
+        int x = 0;
+        for (int i = tokenTypeStack.size() - 1; i > -1; i--) {
+            Object[] object = {++x, tokenTypeStack.get(i).toString()};
             model.addRow(object);
         }
     }
 
-    private Stack<Token> setFirstParserToken() {
+    private Stack<TokenType> setFirstParserToken() {
         getParserTableModel().setRowCount(0);
-        Stack<Token> tokens = new Stack<>();
-        tokens.add(new Token(TokenType.PROGRAMA));
-        parseTokenStackToParserTable(tokens);
-        return tokens;
+        Stack<TokenType> tokenTypeStack = new Stack<>();
+        tokenTypeStack.add(TokenType.PROGRAMA);
+        parseTokensStackToParserTable(tokenTypeStack);
+        return tokenTypeStack;
     }
 
     private DefaultTableModel getParserTableModel() {
         return (DefaultTableModel) view.getParserTable().getModel();
+    }
+
+    private void parseTokensStackToTokensTable(Stack<Token> userTokensStack) {
+        LinkedList tokens = new LinkedList();
+
+        for (int i = userTokensStack.size() - 1; i > -1; i--) { 
+            tokens.add(userTokensStack.get(i));
+        }
+
+        addTokensToTokensTable(tokens);
     }
 
 }
