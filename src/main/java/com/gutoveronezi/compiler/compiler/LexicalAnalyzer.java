@@ -41,7 +41,7 @@ public class LexicalAnalyzer {
                     continue;
                 }
 
-                if (TokenUtils.isWhitespace(ch) || TokenUtils.isCarriageReturn(ch)) {
+                if (TokenUtils.isWhitespace(ch) || TokenUtils.isCarriageReturn(ch) || TokenUtils.isTab(ch)) {
                     nextIndex();
                     continue;
                 }

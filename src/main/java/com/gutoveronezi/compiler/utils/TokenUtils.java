@@ -12,10 +12,11 @@ public class TokenUtils {
     public static final int MAX_LITERAL_LENGTH = 255;
     public static final char CARRIAGE_RETURN = '\r';
     public static final char BREAKLINE = '\n';
+    public static final char TAB = '\t';
     public static final char WHITESPACE = ' ';
 
     public static boolean isDelimiter(char ch) {
-        return isWhitespace(ch) || isBreakline(ch) || isSemicolon(ch);
+        return isWhitespace(ch) || isBreakline(ch) || isSemicolon(ch) || isTab(ch) ;
     }
 
     public static boolean isWhitespace(char ch) {
@@ -28,6 +29,10 @@ public class TokenUtils {
 
     public static boolean isCarriageReturn(char ch) {
         return ch == CARRIAGE_RETURN;
+    }
+
+    public static boolean isTab(char ch) {
+        return ch == TAB;
     }
 
     public static boolean isSemicolon(char ch) {
