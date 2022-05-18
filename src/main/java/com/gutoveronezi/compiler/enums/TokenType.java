@@ -146,10 +146,6 @@ public enum TokenType {
             return INTERGER_NUMBER;
         }
 
-        if (symbol.equalsIgnoreCase("expressao")) { 
-            return LITERAL;
-        }
-
         for (TokenType type : values()) {
             if (symbol.equalsIgnoreCase(type.getSymbol())) {
                 return type;
