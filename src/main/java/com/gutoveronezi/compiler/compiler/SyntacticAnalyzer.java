@@ -49,6 +49,8 @@ public class SyntacticAnalyzer {
 
         Token userToken = userTokensStack.get(userTokensStack.size() - 1);
         TokenType systemTokenType = systemTokenTypeStack.pop();
+        
+        console.logInDebug(String.format("Removing [%s] from the top of the system's token stack.", systemTokenType));
 
         if (systemTokenType.isTerminal()) {
             handleTerminalToken(systemTokenType, userToken);
@@ -75,7 +77,11 @@ public class SyntacticAnalyzer {
         Stack<String> tokenCommands = TokenParser.getTokenCommands(key);
 
         if (tokenCommands == null) {
-            throwInvalidStateException(systemTokenType, userToken);
+            throw new InvalidStateException(String.format("There is no derivation for [%s] and [%s].", systemTokenType, userToken.getType()));
+        }
+        
+        if (!tokenCommands.isEmpty()) {
+            console.logInDebug(String.format("Adding %s from the top of the system's token stack.", tokenCommands));
         }
 
         tokenCommands.forEach(command -> systemTokenTypeStack.add(TokenType.getFromSymbol(command)));
@@ -83,14 +89,11 @@ public class SyntacticAnalyzer {
 
     private void handleTerminalToken(TokenType systemTokenType, Token userToken) {
         if (systemTokenType != userToken.getType()) {
-            throwInvalidStateException(systemTokenType, userToken);
+                throw new InvalidStateException(String.format("Token [%s], at line [%s], starting at index [%s] is not expected. Expecting [%s].", userToken.getType(),
+                        userToken.getLine(), userToken.getStartIndex(), systemTokenType));
         }
 
-        userTokensStack.pop();
+        console.logInDebug(String.format("Removing [%s] from the top of the user's token stack.", userTokensStack.pop()));
     }
 
-    private void throwInvalidStateException(TokenType systemTokenType, Token userToken) throws InvalidStateException {
-        throw new InvalidStateException(String.format("Token [%s], at line [%s], starting at index [%s] is not expected. Expecting [%s].", userToken.getType(), userToken.getLine(),
-                userToken.getStartIndex(), systemTokenType));
-    }
 }
