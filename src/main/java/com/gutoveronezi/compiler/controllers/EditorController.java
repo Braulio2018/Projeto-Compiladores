@@ -133,8 +133,11 @@ public class EditorController {
         new Thread(() -> {
             console.logInInfo("Starting compiling...");
             LinkedList<Token> userTokens = runLexicalAnalysis(text);
-            runSyntacticAnalysis(userTokens, interval);
-            console.logInInfo("Finishing compiling...");     
+            if (runSyntacticAnalysis(userTokens, interval)) {
+                console.logInInfo("Finishing compiling...");  
+            } else {
+                console.logInError("Failed to compile the code.");
+            }
         }).start();
     }
 
@@ -145,15 +148,15 @@ public class EditorController {
         return tokens;
     }
 
-    private void runSyntacticAnalysis(LinkedList<Token> userTokens, int interval) {
+    private boolean runSyntacticAnalysis(LinkedList<Token> userTokens, int interval) {
         if (userTokens == null) { 
             console.logInDebug("Not running syntatic analyzer due to user's token list is null.");
-            return;
+            return true;
         }
 
         if (!userTokens.isEmpty() && userTokens.get(0).getType() != TokenType.PROGRAM) {
             console.logInError("The code must start with the token 'program'.");
-            return;
+            return true;
         }
  
         Stack<TokenType> systemTokenTypeStack = setFirstParserToken();
@@ -175,11 +178,13 @@ public class EditorController {
                 throw new InvalidSyntaxException("The code does not match the language syntax.");
             }
             parseTokensStackToParserTable(systemTokenTypeStack);
+            return true;
         } catch (InvalidStateException | InvalidSyntaxException e) {
             console.logInError(e.getMessage());
         } catch (InterruptedException ex) {
             Logger.getLogger(EditorController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
    
     private void addTokensToTokensTable(LinkedList<Token> tokens) {

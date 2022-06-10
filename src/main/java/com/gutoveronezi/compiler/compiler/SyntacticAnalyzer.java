@@ -77,11 +77,11 @@ public class SyntacticAnalyzer {
         Stack<String> tokenCommands = TokenParser.getTokenCommands(key);
 
         if (tokenCommands == null) {
-            throw new InvalidStateException(String.format("There is no derivation for [%s] and [%s].", systemTokenType, userToken.getType()));
+            throw new InvalidStateException(String.format("There is no derivation for [%s] and [%s] in line [%s].", systemTokenType, userToken.getType(),  userToken.getLine()));
         }
         
         if (!tokenCommands.isEmpty()) {
-            console.logInDebug(String.format("Adding %s from the top of the system's token stack.", tokenCommands));
+            console.logInDebug(String.format("Adding %s to the top of the system's token stack.", tokenCommands));
         }
 
         tokenCommands.forEach(command -> systemTokenTypeStack.add(TokenType.getFromSymbol(command)));
