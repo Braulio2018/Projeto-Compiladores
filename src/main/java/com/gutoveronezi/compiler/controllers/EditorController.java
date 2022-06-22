@@ -158,10 +158,11 @@ public class EditorController {
             console.logInError("The code must start with the token 'program'.");
             return true;
         }
- 
+
         Stack<TokenType> systemTokenTypeStack = setFirstParserToken();
         Stack<Token> userTokenStack = new Stack<>();
         SyntacticAnalyzer syntacticAnalyzer = new SyntacticAnalyzer(console, userTokens, systemTokenTypeStack);
+        console.logInInfo("Starting syntatic analysis...");
         try {
             Pair <Stack<TokenType>, Stack<Token>> pairTokens;
             while (!systemTokenTypeStack.isEmpty()) {
@@ -176,17 +177,20 @@ public class EditorController {
 
             if (!userTokenStack.isEmpty()) {
                 throw new InvalidSyntaxException("The code does not match the language syntax.");
+            } else {
+                console.logInInfo("The syntatic analysis passed successfully.");
             }
             parseTokensStackToParserTable(systemTokenTypeStack);
             return true;
         } catch (InvalidStateException | InvalidSyntaxException e) {
             console.logInError(e.getMessage());
+            console.logInError("The syntatic analysis failed.");
         } catch (InterruptedException ex) {
             Logger.getLogger(EditorController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
     }
-   
+
     private void addTokensToTokensTable(LinkedList<Token> tokens) {
         DefaultTableModel model = (DefaultTableModel) view.getTokenTable().getModel();
         model.setRowCount(0);

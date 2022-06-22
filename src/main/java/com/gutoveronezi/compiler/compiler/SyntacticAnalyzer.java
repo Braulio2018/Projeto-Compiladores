@@ -31,9 +31,7 @@ public class SyntacticAnalyzer {
         }
         Collections.reverse(tokenList);
 
-        for (Token token : tokenList) {
-            tokenStack.add(token);
-        }
+        tokenStack.addAll(tokenList);
 
         return tokenStack;
     }
@@ -42,14 +40,14 @@ public class SyntacticAnalyzer {
         if (userTokensStack == null) {
             return Pair.of(new Stack<>(), new Stack<>());
         }
- 
+
         if (userTokensStack.isEmpty()) {
             throw new InvalidSyntaxException("User's token list get empty while there are non terminal tokens to validate. The code does not match the language syntax.");
         }
 
         Token userToken = userTokensStack.get(userTokensStack.size() - 1);
         TokenType systemTokenType = systemTokenTypeStack.pop();
-        
+
         console.logInDebug(String.format("Removing [%s] from the top of the system's token stack.", systemTokenType));
 
         if (systemTokenType.isTerminal()) {
@@ -57,14 +55,14 @@ public class SyntacticAnalyzer {
         } else {
             handleNonTerminalToken(systemTokenType, userToken);
         }
-     
+
         return Pair.of(systemTokenTypeStack, userTokensStack);
     }
 
     private void setUserTokensStack(LinkedList<Token> tokenList) {
         Stack<Token> tokenStack = parseTokenListToReverseStack(tokenList);
 
-        if (tokenStack == null || tokenStack.isEmpty()) {
+        if (tokenStack.isEmpty()) {
             console.logInDebug("There are no tokens to analyze.");
             return;
         }
@@ -79,7 +77,7 @@ public class SyntacticAnalyzer {
         if (tokenCommands == null) {
             throw new InvalidStateException(String.format("There is no derivation for [%s] and [%s] in line [%s].", systemTokenType, userToken.getType(),  userToken.getLine()));
         }
-        
+
         if (!tokenCommands.isEmpty()) {
             console.logInDebug(String.format("Adding %s to the top of the system's token stack.", tokenCommands));
         }

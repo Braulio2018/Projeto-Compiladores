@@ -88,7 +88,7 @@ public class EditorView extends javax.swing.JFrame {
         runCompiilerButton.setToolTipText("Run the compiler");
         runCompiilerButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                runCompiilerButtonActionPerformed(evt);
+                runCompilerButtonActionPerformed(evt);
             }
         });
 
@@ -288,11 +288,12 @@ public class EditorView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_newFileButtonActionPerformed
 
-    private void runCompiilerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runCompiilerButtonActionPerformed
+    private void runCompilerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runCompiilerButtonActionPerformed
         int interval = 10;
         if (StringUtils.isNotBlank(intervalText.getText())) {
             interval = Integer.parseInt(intervalText.getText());
         }
+        console.clean();
         controller.runCompiler(editorPane.getText(), interval);
     }//GEN-LAST:event_runCompiilerButtonActionPerformed
 

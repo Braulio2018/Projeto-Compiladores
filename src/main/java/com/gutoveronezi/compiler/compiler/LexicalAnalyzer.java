@@ -30,11 +30,11 @@ public class LexicalAnalyzer {
 
         console.logInInfo("Starting lexical analysis...");
         chars = code.toCharArray();
- 
+
         try {
             while (isIndexWithinBound()) {
-                char ch = chars[index]; 
-    
+                char ch = chars[index];
+
                 if (TokenUtils.isBreakline(ch)) {
                     nextLine();
                     nextIndex();
@@ -50,7 +50,7 @@ public class LexicalAnalyzer {
                     readLiteral();
                     continue;
                 }
-                
+
                 char nextCh = TokenUtils.WHITESPACE;
                 if (!isLastIndexOrAfter()) {
                     nextCh = chars[index + 1];
@@ -60,7 +60,7 @@ public class LexicalAnalyzer {
                     readInteger();
                     continue;
                 }
-   
+
                 if (TokenUtils.isStartOfComment(ch, nextCh)) {
                     readComment();
                     continue;
@@ -68,13 +68,13 @@ public class LexicalAnalyzer {
 
                 readOtherTokenTypes();
             }
-    
+
             return tokens;
         } catch (Exception e) {
             console.logInError(String.format("%s - %s", e.getClass().getSimpleName(), e.getMessage()));
             return null;
         } finally {
-            console.logInInfo("Finalizing lexical analysis.");
+            console.logInInfo("The lexical analysis passed successfully.");
         }
     }
 
@@ -88,7 +88,7 @@ public class LexicalAnalyzer {
         nextIndex();
 
         while (isIndexWithinBound()) {
-            char ch = chars[index]; 
+            char ch = chars[index];
 
             if (TokenUtils.isStartOrEndOfLiteral(ch)) {
                 saveToken(TokenType.LITERAL);
@@ -137,7 +137,7 @@ public class LexicalAnalyzer {
         nextIndex();
 
         while (!isLastIndexOrAfter()) {
-            char ch = chars[index]; 
+            char ch = chars[index];
             char nextCh = chars[index + 1];
 
             if (TokenUtils.isEndOfComment(ch, nextCh)) {

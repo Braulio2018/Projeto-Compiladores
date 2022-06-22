@@ -23,6 +23,10 @@ public class ConsoleUtils {
         log(stringToLog, LogLevel.DEBUG);
     }
 
+    public void clean() {
+        view.getConsoleTextArea().setText("");
+    }
+
     private void log(String stringToLog, LogLevel level) {
         if (StringUtils.isNotBlank(view.getConsoleTextArea().getText())) {
             view.getConsoleTextArea().append("\n");
@@ -34,5 +38,5 @@ public class ConsoleUtils {
     private String getLog(String stringToLog, LogLevel logLevel) {
         return String.format("%s - %s - %s", DateUtils.getDateFormated(), logLevel, stringToLog);
     }
-    
+
 }
