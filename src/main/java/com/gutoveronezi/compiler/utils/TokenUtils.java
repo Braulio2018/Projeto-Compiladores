@@ -5,6 +5,10 @@ import com.gutoveronezi.compiler.exceptions.InvalidIdentifierException;
 import com.gutoveronezi.compiler.exceptions.InvalidLiteralException;
 import com.gutoveronezi.compiler.exceptions.InvalidIntegerValueException;
 import com.gutoveronezi.compiler.models.Token;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Stack;
 import java.util.regex.Pattern;
 
 public class TokenUtils {
@@ -73,7 +77,6 @@ public class TokenUtils {
             throw new InvalidIntegerValueException(String.format("Invalid integer value at line [%s], starting at index [%s]. Value must be within -32767 and 32767", line,
                     startIndex));
         }
-        
     }
 
     public static void validateLiteralToken(String token, int line, int startIndex) {
@@ -91,5 +94,18 @@ public class TokenUtils {
 
     public static String buildTokenParserKey(TokenType t1, Token t2) {
         return String.format("%s,%s", t1.getId(), t2.getType().getId());
+    }
+
+    public static Stack<Token> parseTokenListToReverseStack(LinkedList<Token> tokenList) {
+        Stack<Token> tokenStack = new Stack<>();
+        if (tokenList == null) {
+            return tokenStack;
+        }
+
+        for (int i = tokenList.size()-1; i >= 0; i--){
+            tokenStack.add(tokenList.get(i));
+        }
+
+        return tokenStack;
     }
 }

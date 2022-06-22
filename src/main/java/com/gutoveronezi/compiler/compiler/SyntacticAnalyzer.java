@@ -7,7 +7,6 @@ import com.gutoveronezi.compiler.models.Token;
 import com.gutoveronezi.compiler.parser.TokenParser;
 import com.gutoveronezi.compiler.utils.ConsoleUtils;
 import com.gutoveronezi.compiler.utils.TokenUtils;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Stack;
 import org.apache.commons.lang3.tuple.Pair;
@@ -22,18 +21,6 @@ public class SyntacticAnalyzer {
         this.console = console;
         setUserTokensStack(userTokenList);
         this.systemTokenTypeStack = systemTokenTypeStack;
-    }
-
-    private Stack<Token> parseTokenListToReverseStack(LinkedList<Token> tokenList) {
-        Stack<Token> tokenStack = new Stack<>();
-        if (tokenList == null) {
-            return tokenStack;
-        }
-        Collections.reverse(tokenList);
-
-        tokenStack.addAll(tokenList);
-
-        return tokenStack;
     }
 
     public Pair<Stack<TokenType>, Stack<Token>> processNextSystemToken() {
@@ -60,14 +47,7 @@ public class SyntacticAnalyzer {
     }
 
     private void setUserTokensStack(LinkedList<Token> tokenList) {
-        Stack<Token> tokenStack = parseTokenListToReverseStack(tokenList);
-
-        if (tokenStack.isEmpty()) {
-            console.logInDebug("There are no tokens to analyze.");
-            return;
-        }
-
-        this.userTokensStack = tokenStack;
+        this.userTokensStack = TokenUtils.parseTokenListToReverseStack(tokenList);
     }
 
     private void handleNonTerminalToken(TokenType systemTokenType, Token userToken) {

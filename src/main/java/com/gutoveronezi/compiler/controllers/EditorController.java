@@ -1,6 +1,7 @@
 package com.gutoveronezi.compiler.controllers;
 
 import com.gutoveronezi.compiler.compiler.LexicalAnalyzer;
+import com.gutoveronezi.compiler.compiler.SemanticAnalyzer;
 import com.gutoveronezi.compiler.compiler.SyntacticAnalyzer;
 import com.gutoveronezi.compiler.enums.TokenType;
 import com.gutoveronezi.compiler.exceptions.InvalidStateException;
@@ -132,16 +133,26 @@ public class EditorController {
     public void runCompiler(String text, int interval) {
         new Thread(() -> {
             console.logInInfo("Starting compiling...");
-            LinkedList<Token> userTokens = runLexicalAnalysis(text);
-            if (runSyntacticAnalysis(userTokens, interval)) {
-                console.logInInfo("Finishing compiling...");  
-            } else {
-                console.logInError("Failed to compile the code.");
+            try {
+                LinkedList<Token> userTokens = runLexicalAnalysis(text);
+                if (!runSyntacticAnalysis(userTokens, interval)) {
+                    console.logInError("Failed to compile the code.");
+                }
+
+                runSemanticAnalyzer(userTokens);
+                console.logInInfo("Finishing compiling...");
+            } catch (Exception e) {
+                console.logInError(String.format("%s - %s", e.getClass().getSimpleName(), e.getMessage()));
             }
         }).start();
     }
 
-    private LinkedList<Token> runLexicalAnalysis(String text) { 
+    private void runSemanticAnalyzer(LinkedList<Token> userTokens) {
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(console);
+        semanticAnalyzer.analyze(userTokens);
+    }
+
+    private LinkedList<Token> runLexicalAnalysis(String text) {
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(console);
         LinkedList<Token> tokens = lexicalAnalyzer.analyze(text);
         addTokensToTokensTable(tokens);
@@ -149,7 +160,7 @@ public class EditorController {
     }
 
     private boolean runSyntacticAnalysis(LinkedList<Token> userTokens, int interval) {
-        if (userTokens == null) { 
+        if (userTokens == null) {
             console.logInDebug("Not running syntatic analyzer due to user's token list is null.");
             return true;
         }

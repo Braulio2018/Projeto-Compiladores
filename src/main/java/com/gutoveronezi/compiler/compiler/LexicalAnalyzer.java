@@ -31,51 +31,45 @@ public class LexicalAnalyzer {
         console.logInInfo("Starting lexical analysis...");
         chars = code.toCharArray();
 
-        try {
-            while (isIndexWithinBound()) {
-                char ch = chars[index];
+        while (isIndexWithinBound()) {
+            char ch = chars[index];
 
-                if (TokenUtils.isBreakline(ch)) {
-                    nextLine();
-                    nextIndex();
-                    continue;
-                }
-
-                if (TokenUtils.isWhitespace(ch) || TokenUtils.isCarriageReturn(ch) || TokenUtils.isTab(ch)) {
-                    nextIndex();
-                    continue;
-                }
-
-                if (TokenUtils.isStartOrEndOfLiteral(ch)) {
-                    readLiteral();
-                    continue;
-                }
-
-                char nextCh = TokenUtils.WHITESPACE;
-                if (!isLastIndexOrAfter()) {
-                    nextCh = chars[index + 1];
-                }
-
-                if (TokenUtils.isStartOfIntegerValue(ch, nextCh)) {
-                    readInteger();
-                    continue;
-                }
-
-                if (TokenUtils.isStartOfComment(ch, nextCh)) {
-                    readComment();
-                    continue;
-                }
-
-                readOtherTokenTypes();
+            if (TokenUtils.isBreakline(ch)) {
+                nextLine();
+                nextIndex();
+                continue;
             }
 
-            return tokens;
-        } catch (Exception e) {
-            console.logInError(String.format("%s - %s", e.getClass().getSimpleName(), e.getMessage()));
-            return null;
-        } finally {
-            console.logInInfo("The lexical analysis passed successfully.");
+            if (TokenUtils.isWhitespace(ch) || TokenUtils.isCarriageReturn(ch) || TokenUtils.isTab(ch)) {
+                nextIndex();
+                continue;
+            }
+
+            if (TokenUtils.isStartOrEndOfLiteral(ch)) {
+                readLiteral();
+                continue;
+            }
+
+            char nextCh = TokenUtils.WHITESPACE;
+            if (!isLastIndexOrAfter()) {
+                nextCh = chars[index + 1];
+            }
+
+            if (TokenUtils.isStartOfIntegerValue(ch, nextCh)) {
+                readInteger();
+                continue;
+            }
+
+            if (TokenUtils.isStartOfComment(ch, nextCh)) {
+                readComment();
+                continue;
+            }
+
+            readOtherTokenTypes();
         }
+
+        console.logInInfo("The lexical analysis passed successfully.");
+        return tokens;
     }
 
     private boolean isIndexWithinBound() {
