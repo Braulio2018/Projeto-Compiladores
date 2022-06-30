@@ -272,3 +272,28 @@ BEGIN
   
 
 END.
+
+
+
+
+
+PROGRAM TESTEPROC2;
+VAR x: integer; arraya : ARRAY[0..20] OF INTEGER;
+procedure e(a:integer);
+begin;
+end;
+BEGIN
+X:=10 + a;
+END.
+
+
+PROGRAM TESTEPROC2;
+label a;
+VAR x: integer; arraya : ARRAY[0..20] OF INTEGER;
+procedure e(a:integer);
+begin;
+end;
+BEGIN
+X:=10;
+call e(x,x,x);
+END.

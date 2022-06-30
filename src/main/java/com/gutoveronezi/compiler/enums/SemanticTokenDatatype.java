@@ -1,5 +1,5 @@
 package com.gutoveronezi.compiler.enums;
 
 public enum SemanticTokenDatatype {
-    INTEGER;
+    INTEGER, ARRAY_INTEGER, PROCEDURE, STRING;
 }

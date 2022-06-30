@@ -137,6 +137,7 @@ public class EditorController {
                 LinkedList<Token> userTokens = runLexicalAnalysis(text);
                 if (!runSyntacticAnalysis(userTokens, interval)) {
                     console.logInError("Failed to compile the code.");
+                    return;
                 }
 
                 runSemanticAnalyzer(userTokens);

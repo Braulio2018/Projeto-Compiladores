@@ -3,6 +3,7 @@ package com.gutoveronezi.compiler.models;
 import com.gutoveronezi.compiler.enums.SemanticTokenCategory;
 import com.gutoveronezi.compiler.enums.SemanticTokenDatatype;
 
+import java.util.LinkedList;
 import java.util.Objects;
 
 public class SemanticToken {
@@ -10,12 +11,13 @@ public class SemanticToken {
     private SemanticTokenCategory category;
     private SemanticTokenDatatype datatype;
     private int level;
+    private LinkedList<SemanticToken> parameters;
 
-    public SemanticToken(Token token, SemanticTokenCategory category, SemanticTokenDatatype datatype, int level) {
+    public SemanticToken(Token token, SemanticTokenCategory category, int level) {
         this.token = token;
         this.category = category;
-        this.datatype = datatype;
         this.level = level;
+        this.parameters = new LinkedList<>();
     }
 
     public Token getToken() {
@@ -50,6 +52,14 @@ public class SemanticToken {
         this.level = level;
     }
 
+    public LinkedList<SemanticToken> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(LinkedList<SemanticToken> parameters) {
+        this.parameters = parameters;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -67,5 +77,9 @@ public class SemanticToken {
     @Override
     public int hashCode() {
         return Objects.hash(token.getContent(), level);
+    }
+
+    public void addParameter(SemanticToken parameter) {
+        parameters.add(parameter);
     }
 }
