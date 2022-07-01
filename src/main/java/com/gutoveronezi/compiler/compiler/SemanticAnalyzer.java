@@ -34,12 +34,14 @@ public class SemanticAnalyzer {
         LinkedList<SemanticToken> availableSemanticTokens = new LinkedList<>();
         int qtParameterInProcedure = 0;
         SemanticToken currentProcedure = null;
+        SemanticToken lastToken = null;
         List<SemanticToken> tokensToSetType = new ArrayList<>();
+        Boolean isProcedure = false;
 
         while (!userTokensStack.isEmpty()) {
             Token token = userTokensStack.pop();
 
-            removeScopeSemanticTokensIfEndOfScope(token, availableSemanticTokens, currentLevel);
+            isProcedure = removeScopeSemanticTokensIfEndOfScope(token, availableSemanticTokens, currentLevel, isProcedure);
 
             currentLevel = getSemanticTokenLevel(currentLevel, token, category);
             category = getSemanticTokenCategory(category, token);
@@ -50,6 +52,7 @@ public class SemanticAnalyzer {
                     addSemanticTokenToSet(semanticToken, availableSemanticTokens);
 
                     if (category == SemanticTokenCategory.PROCEDURE) {
+                        isProcedure = true;
                         qtParameterInProcedure = 0;
                         currentProcedure = semanticToken;
                         semanticToken.setDatatype(SemanticTokenDatatype.PROCEDURE);
@@ -233,19 +236,27 @@ public class SemanticAnalyzer {
         return null;
     }
 
-    private void removeScopeSemanticTokensIfEndOfScope(Token token, LinkedList<SemanticToken> availableSemanticTokens, int currentLevel) {
-        if (token.getType() != TokenType.END) {
-            return;
+    private boolean removeScopeSemanticTokensIfEndOfScope(Token token, LinkedList<SemanticToken> availableSemanticTokens, int currentLevel, Boolean isProcedure) {
+        if (token.getType() == TokenType.END && isProcedure) {
+            availableSemanticTokens.removeIf(semanticToken -> semanticToken.getLevel() == currentLevel);
+            return false;
         }
 
-        availableSemanticTokens.removeIf(semanticToken -> semanticToken.getLevel() == currentLevel);
+        return isProcedure;
     }
 
     private void addSemanticTokenToSet(SemanticToken semanticToken, LinkedList<SemanticToken> semanticTokens) {
-        if (semanticTokens.contains(semanticToken)) {
+        SemanticToken declared = null;
+        for (SemanticToken declaredToken : semanticTokens) {
+            if (declaredToken.getToken().getContent().equalsIgnoreCase(semanticToken.getToken().getContent()) && declaredToken.getLevel() == semanticToken.getLevel()) {
+                declared = declaredToken;
+            }
+        }
+
+        if (declared != null) {
             Token token = semanticToken.getToken();
-            throw new InvalidIdentifierException(String.format("Identifier [%s] at line [%s], starting at index [%s], already has been declared in scope level [%s].",
-                token.getContent(), token.getLine(), token.getStartIndex(), semanticToken.getLevel()));
+            throw new InvalidIdentifierException(String.format("Identifier [%s] at line [%s], starting at index [%s], already has been declared in scope level [%s] as a [%s].",
+                token.getContent(), token.getLine(), token.getStartIndex(), semanticToken.getLevel(), declared.getCategory()));
         }
 
         semanticTokens.add(semanticToken);
